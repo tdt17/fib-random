@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>fib-random</title>
+    <style>
+      :root {
+        --base-size: 10rem;
+        --base-height: 8.65rem;
+      }
+
+      body {
+        font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto,
+          Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+        line-height: 1.4;
+        min-height: 90vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        perspective: 180rem;
+        color: #fff;
+        background: #000;
+      }
+
+      .config {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        background-color: #555;
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="config">
+      <button onclick="fibRandom()">Go</button>
+      <button onclick="toogleConfig(this)">+</button>
+      <div id="expand" hidden="true">
+        From: <input id="from" value="1" type="number"><br/>
+        To: <input id="to" value="21" type="number"><br/>
+        <button onclick="reset()">Reset</button>
+      </div>
+    </div>
+    <ul id="dice" class="d20"></ul>
+    <script>
+      const shuffleArray = (arr) => arr
+        .map(val => ({ val, rnd: Math.random() }))
+        .sort((a, b) => a.rnd - b.rnd)
+        .map(({ val }) => val)
+      const repeatArray = (size, arr) => {
+        const copy = arr.slice(0, size)
+        let i = 0
+        while(copy.length < size) {
+          copy.push(copy[i++])
+        }
+        return copy
+      }
+      const random = (from, to) => from + ~~(Math.random() * (to - from))
+      const fibObj = {0: 0, 1: 1}
+      const fib = (x) => fibObj[x] ?? (fibObj[x] = fib(x - 1) + fib(x - 2))
+      Object.assign(window, { fib })
+
+      function toogleConfig(el) {
+        document.getElementById('expand').hidden = !document.getElementById('expand').hidden
+        el.innerText = document.getElementById('expand').hidden ? '+' : '-'
+      }
+      function fibRandom() {
+        const from = Number.parseInt(document.getElementById('from').value, 10)
+        const to = Number.parseInt(document.getElementById('to').value, 10)
+        let i = 0, x = 0
+        while(x <= to) {
+          x = fib(i++)
+        }
+        const values = Object.values(fibObj).filter((x, i) => x >= from && x <= to && i !== 1)
+        rollDice(values[random(0, values.length)],values)
+      }
+      function rollDice(x, elements = []) {
+        const dice = document.getElementById('dice')
+        const shuffled = shuffleArray(elements.filter(y => x !== y))
+        if(shuffled.length === 0) shuffled.push(x)
+        const sides = [x, ...repeatArray(19, shuffled)]
+          .map(x => {
+            const li = document.createElement('li')
+            li.appendChild(document.createTextNode(x))
+            return li
+          })
+        dice.innerHTML = ''
+        dice.append(...sides)
+      }
+    </script>
+    <script>
+      const LS_KEY = 'rnd-config'
+      const values = JSON.parse(localStorage.getItem(LS_KEY) || '{}')
+      const save = () => localStorage.setItem(LS_KEY, JSON.stringify(values))
+      document.querySelectorAll('.config [value]').forEach((el) => {
+        el.value = values[el.id] ?? el.value
+        el.addEventListener('change', () => {
+          values[el.id] = el.value
+          save()
+        })
+      })
+      function reset() {
+        localStorage.removeItem(LS_KEY)
+        location.reload()
+      }
+      fibRandom()
+    </script>
+    <style title="dice">
+      .d20 {
+        position: relative;
+        width: var(--base-size);
+        height: 8.45rem;
+        transform-style: preserve-3d;
+        animation: rotate 2s forwards ease-in-out;
+      }
+
+      .d20, .d20 > * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+      }
+
+      .d20 > * {
+        width: var(--base-size);
+        height: var(--base-height);
+        position: absolute;
+        clip-path: polygon(0 0, 50% 100%, 100% 0);
+        transform-origin: top;
+        background-color: #000;
+        background: linear-gradient(180deg, #fff3 0, #fff3 0%, #0000 2%, #0000 100%),
+          linear-gradient(300deg, #fff3 0, #fff3 32.5%, #0000 35%, #0000 100%),
+          linear-gradient(60deg, #fff3 0, #fff3 32.5%, #0000 35%, #0000 100%),
+          linear-gradient(0deg, #06c 0, #06c 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 4rem;
+        color: #fff;
+        line-height: -1;
+        padding-bottom: 3rem;
+        --d: 6.9rem;
+      }
+
+      /* Grouped faces so opposites are together. */
+      /* They should add up to 21. */
+
+      .d20 > *:nth-child(1) {
+        transform: rotateY(0.7turn) translateZ(calc(var(--d) * -1)) rotateX(127deg);
+      }
+      .d20 > *:nth-child(20) {
+        bottom: calc(var(--base-height) * -1);
+        transform: rotateY(0.7turn) translateZ(var(--d)) rotateX(307deg);
+      }
+
+      .d20 > *:nth-child(2) {
+        transform: rotateY(0.6turn) translateZ(var(--d)) rotateX(11deg);
+      }
+      .d20 > *:nth-child(19) {
+        bottom: calc(var(--base-height) * -1);
+        transform: rotateY(0.6turn) translateZ(calc(var(--d) * -1)) rotateX(191deg);
+      }
+
+      .d20 > *:nth-child(3) {
+        bottom: calc(var(--base-height) * -1);
+        transform: rotateY(1turn) translateZ(calc(var(--d) * -1)) rotateX(191deg);
+      }
+      .d20 > *:nth-child(18) {
+        transform: rotateY(1turn) translateZ(var(--d)) rotateX(11deg);
+      }
+
+      .d20 > *:nth-child(4) {
+        transform: rotateY(0.3turn) translateZ(calc(var(--d) * -1)) rotateX(127deg);
+      }
+      .d20 > *:nth-child(17) {
+        bottom: calc(var(--base-height) * -1);
+        transform: rotateY(0.3turn) translateZ(var(--d)) rotateX(307deg);
+      }
+
+      .d20 > *:nth-child(5) {
+        transform: rotateY(0.8turn) translateZ(var(--d)) rotateX(11deg);
+      }
+      .d20 > *:nth-child(16) {
+        bottom: calc(var(--base-height) * -1);
+        transform: rotateY(0.8turn) translateZ(calc(var(--d) * -1)) rotateX(191deg);
+      }
+
+      .d20 > *:nth-child(6) {
+        transform: rotateY(0.9turn) translateZ(calc(var(--d) * -1)) rotateX(127deg);
+      }
+      .d20 > *:nth-child(15) {
+        bottom: calc(var(--base-height) * -1);
+        transform: rotateY(0.9turn) translateZ(var(--d)) rotateX(307deg);
+      }
+
+      .d20 > *:nth-child(7) {
+        bottom: calc(var(--base-height) * -1);
+        transform: rotateY(0.2turn) translateZ(calc(var(--d) * -1)) rotateX(191deg);
+      }
+      .d20 > *:nth-child(14) {
+        transform: rotateY(0.2turn) translateZ(var(--d)) rotateX(11deg);
+      }
+
+      .d20 > *:nth-child(8) {
+        transform: rotateY(0.1turn) translateZ(calc(var(--d) * -1)) rotateX(127deg);
+      }
+      .d20 > *:nth-child(13) {
+        bottom: calc(var(--base-height) * -1);
+        transform: rotateY(0.1turn) translateZ(var(--d)) rotateX(307deg);
+      }
+
+      .d20 > *:nth-child(9) {
+        transform: rotateY(0.4turn) translateZ(var(--d)) rotateX(11deg);
+      }
+      .d20 > *:nth-child(12) {
+        bottom: calc(var(--base-height) * -1);
+        transform: rotateY(0.4turn) translateZ(calc(var(--d) * -1)) rotateX(191deg);
+      }
+
+      .d20 > *:nth-child(10) {
+        transform: rotateY(.5turn) translateZ(calc(var(--d) * -1)) rotateX(127deg);
+      }
+      .d20 > *:nth-child(11) {
+        bottom: calc(var(--base-height) * -1);
+        transform: rotateY(.5turn) translateZ(var(--d)) rotateX(307deg);
+      }
+
+      @keyframes rotate {
+        from {
+          transform: rotateX(0deg) rotateY(360deg) rotateZ(360deg);
+        }
+        to {
+          transform: rotateX(231deg) rotateY(107deg) rotateZ(0deg);
+        }
+      }
+    </style>
+  </body>
+</html>
