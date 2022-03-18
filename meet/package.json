@@ -1,0 +1,23 @@
+{
+  "name": "meet2",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "deploy": "gh-pages -d dist -e meet"
+  },
+  "dependencies": {
+    "firebase": "^9.6.8",
+    "vue": "^3.2.31"
+  },
+  "devDependencies": {
+    "@babel/types": "^7.17.0",
+    "@vitejs/plugin-vue": "^2.2.4",
+    "gh-pages": "^3.2.3",
+    "typescript": "^4.6.2",
+    "vite": "^2.8.6",
+    "vue-tsc": "^0.33.2-patch.1"
+  }
+}

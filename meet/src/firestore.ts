@@ -1,0 +1,91 @@
+import { initializeApp } from "firebase/app"
+import { getFirestore, onSnapshot, doc, Unsubscribe, addDoc, collection, setDoc } from "firebase/firestore"
+import { computed, reactive, watch } from "vue"
+import { config } from "./config"
+
+const app = initializeApp({
+  apiKey: "AIzaSyDlAUfPJ6T-xQMJcsbAT3SW7zFSFxDQZh4",
+  authDomain: "fib-random.firebaseapp.com",
+  projectId: "fib-random",
+  storageBucket: "fib-random.appspot.com",
+  messagingSenderId: "724579742971",
+  appId: "1:724579742971:web:7b8e2259a4d585b9be6c5e"
+})
+
+const db = getFirestore()
+
+export type User = {
+  estimate?: number
+  ready: boolean
+}
+
+type State = {
+  users: {
+    [user: string]: User
+  }
+  settings: {
+    admin: string
+    options: string[]
+  }
+}
+
+export const addSession = async (): Promise<string> => {
+  const state: State = {
+    users: {},
+    settings: {
+      admin: config.name,
+      options: ['1','2','3','5']
+    }
+  }
+  const ref = await addDoc(collection(db, 'sessions'), state)
+  return ref.id
+}
+
+export const session = reactive({
+  loading: true,
+  id: window.location.hash.slice(1),
+  active: false,
+  state: undefined as undefined | State
+})
+
+export const orderedUsers = computed(() => Object.keys(session.state?.users ?? {}).sort())
+
+export const allReady = computed(() => 
+  Object.values(session.state?.users ?? {}).every(({ready}) => ready)
+)
+
+let unsubscribe: Unsubscribe
+watch(() => [session.id, config.name], ([id, name]) => {
+  if(!name) {
+    return
+  }
+  console.log({id, name})
+  unsubscribe?.()
+  unsubscribe = onSnapshot(doc(db, `sessions/${id}`), (snapshot) => {
+    session.active = snapshot.exists()
+    session.state = snapshot.data() as any
+    session.loading = false
+  })
+}, { immediate: true })
+
+export const updateUserState = async (name: string, user: Partial<User>) => {
+  await setDoc(doc(db, `sessions/${session.id}`), { 
+    users: {
+      [name]: user
+    }
+  }, { merge: true }) 
+}
+
+watch(() => [session.state?.users, config.name], ([users, name]) => {
+  if(!users || typeof users === 'string') return
+  if(!name || typeof name !== 'string') return
+  if(!users[name]) {
+    updateUserState(name, { ready: false, estimate: ~~(Math.random() * 100) })
+  }
+})
+
+window.addEventListener('hashchange', () => {
+  session.id = window.location.hash.slice(1)
+})
+
+Object.assign(window, {session})
