@@ -59,6 +59,8 @@
     justify-content: center;
     align-items: center;
     min-width: 150px;
+    z-index: 100;
+    overflow: none;
   }
 
   .d20 {
