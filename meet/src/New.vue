@@ -8,6 +8,6 @@
 </script>
 
 <template>
-  <div v-show="session.id">Meet "{{session.id}}" not found</div>
-  <button @click="newSession">New Meet</button>
+  <div v-show="session.id">Session "{{session.id}}" not found</div>
+  <button @click="newSession">New Session</button>
 </template>

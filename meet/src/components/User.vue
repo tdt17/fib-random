@@ -1,33 +1,25 @@
 <script setup lang="ts">
-import { User, allReady, updateUserState } from '../firestore'
+import { User, allReady } from '../firestore'
 import { config } from '../config'
-const props = defineProps<{ name: string, user: User }>()
-const toggleReady = () => {
-  updateUserState(config.name, {
-    ready: !props.user.ready
-  })
-}
+import Dice from './Dice.vue'
+defineProps<{ name: string, user: User }>()
 </script>
 
 <template>
-  <div class="user">
-    <h3>{{name}}</h3>
-    <div>Ready:
-      <span class="value" v-if="name === config.name"><button @click="toggleReady">{{user.ready}}</button></span>
-      <span class="value" v-else>{{user.ready}}</span>
-    </div>
-    <div v-if="allReady">Estimate: 
-      <span class="value">{{user.estimate}}</span>
-    </div>
+  <div class="user" :class="{active: name === config.name}">
+    <h3>{{name}} {{user.ready ? '✔' : '◻︎'}}</h3>
+    <Dice :roll="!user.ready" :value="allReady ? user.estimate || '' : '?'" :values="[]" />
   </div>
 </template>
 
 <style>
   .user {
-    border: 1px #000 solid;
+    border: 1px #0004 solid;
     padding: 10px;
     margin: 10px;
-    max-width: 100px;
+  }
+  .user.active {
+    border: 1px #000 solid;
   }
   h3 {
     margin-top: 10px;

@@ -15,7 +15,7 @@ const app = initializeApp({
 const db = getFirestore()
 
 export type User = {
-  estimate?: number
+  estimate?: string
   ready: boolean
 }
 
@@ -26,6 +26,7 @@ type State = {
   settings: {
     admin: string
     options: string[]
+    openSettings: boolean
   }
 }
 
@@ -34,7 +35,8 @@ export const addSession = async (): Promise<string> => {
     users: {},
     settings: {
       admin: config.name,
-      options: ['1','2','3','5']
+      options: ['1','2','3','5','8','13','21'],
+      openSettings: false
     }
   }
   const ref = await addDoc(collection(db, 'sessions'), state)
@@ -49,17 +51,16 @@ export const session = reactive({
 })
 
 export const orderedUsers = computed(() => Object.keys(session.state?.users ?? {}).sort())
-
 export const allReady = computed(() => 
   Object.values(session.state?.users ?? {}).every(({ready}) => ready)
 )
 
 let unsubscribe: Unsubscribe
 watch(() => [session.id, config.name], ([id, name]) => {
-  if(!name) {
+  if(!name || !id) {
+    session.loading = false
     return
   }
-  console.log({id, name})
   unsubscribe?.()
   unsubscribe = onSnapshot(doc(db, `sessions/${id}`), (snapshot) => {
     session.active = snapshot.exists()
@@ -76,11 +77,15 @@ export const updateUserState = async (name: string, user: Partial<User>) => {
   }, { merge: true }) 
 }
 
+export const updateState = async (settings: Partial<State['settings']>) => {
+  await setDoc(doc(db, `sessions/${session.id}`), { settings }, { merge: true }) 
+}
+
 watch(() => [session.state?.users, config.name], ([users, name]) => {
   if(!users || typeof users === 'string') return
   if(!name || typeof name !== 'string') return
   if(!users[name]) {
-    updateUserState(name, { ready: false, estimate: ~~(Math.random() * 100) })
+    updateUserState(name, { ready: false, estimate: '' + ~~(Math.random() * 100) })
   }
 })
 
