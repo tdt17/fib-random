@@ -1,4 +1,4 @@
-import { reactive, watch } from "vue"
+import { reactive, ref, watch } from "vue"
 
 const CONFIG_KEY = 'fib-config'
 
@@ -11,3 +11,5 @@ Object.assign(config, JSON.parse(localStorage.getItem(CONFIG_KEY) || '{}'))
 watch(config, (config) => {
   localStorage.setItem(CONFIG_KEY, JSON.stringify(config))
 })
+
+export const configMode = ref(false)

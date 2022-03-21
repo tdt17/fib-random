@@ -1,16 +1,17 @@
 <script setup lang="ts">
-  import { session, orderedUsers } from './firestore'
+  import { activeUsers, orderedActiveUsers } from './firestore'
   import User from './components/User.vue'
   import Settings from './components/Settings.vue'
   import Controls from './components/Controls.vue'
-import Result from './components/Result.vue';
+  import Result from './components/Result.vue'
 </script>
 
 <template>
+  <div id="globalcontrols"></div>
   <Settings/>
   <Controls/>
   <div class="users">
-    <User v-for="name in orderedUsers" :name="name" :user="session.state?.users[name]!"/>
+    <User v-for="name in orderedActiveUsers" :name="name" :user="activeUsers[name]!"/>
   </div>
   <Result/>
 </template>
@@ -21,5 +22,10 @@ import Result from './components/Result.vue';
     flex-direction: row;
     justify-content: center;
     flex-wrap: wrap;
+  }
+  #globalcontrols {
+    position: absolute;
+    top: 10px;
+    left: 10px;
   }
 </style>

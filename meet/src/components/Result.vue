@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { session, allReady } from '../firestore'
+import { allReady, activeUsers } from '../firestore'
 import Dice from './Dice.vue';
 const values = computed(() => {
-  const users = Object.values(session.state?.users ?? {})
+  const users = Object.values(activeUsers.value)
   return users.reduce((values, {estimate = ''}) => {
     values[estimate] = (values[estimate] ?? 0) + 1
     return values

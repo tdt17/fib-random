@@ -1,10 +1,9 @@
 <script setup lang="ts">
   import { ref, watch } from 'vue'
   import { session, updateState } from '../firestore'
-  import { config } from '../config'
-  const show = ref(false)
+  import { config, configMode } from '../config'
   const toggle = () => {
-    show.value = !show.value
+    configMode.value = !configMode.value
   }
   const optionsText = ref(session.state?.settings.options.join(';'))
   watch(() => session.state?.settings.options.join(';'), (text) => {
@@ -19,8 +18,14 @@
 </script>
 
 <template>
-  <button v-if="session.state?.settings.admin === config.name" class="settings-toggle" @click="toggle">⚙️</button>
-  <div v-if="show" class="settings">
+  <Teleport to="#globalcontrols">
+    <button
+      v-if="session.state?.settings.admin === config.name" 
+      :class="{active: configMode}"
+      @click="toggle"
+    >⚙️</button>
+  </Teleport>
+  <div v-if="configMode" class="settings">
     <h3>Settings</h3>
     Settings for all available: <input type="checkbox" v-model="session.state!.settings.openSettings"><br>
     Options: <input v-model="optionsText"><br>
@@ -29,11 +34,6 @@
 </template>
 
 <style>
-  .settings-toggle {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-  }
   .settings {
     margin-bottom: 20px;
   }

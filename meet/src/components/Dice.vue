@@ -1,6 +1,5 @@
 <script setup lang="ts">
   import { computed, ref, watch } from 'vue';
-  import { session } from '../firestore'
   const props = withDefaults(defineProps<{ 
     roll: boolean
     value: string

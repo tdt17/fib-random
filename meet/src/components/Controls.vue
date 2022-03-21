@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { session, updateUserState } from '../firestore'
+import { session, user, updateUserState, orderedViewingUsers } from '../firestore'
 import { config } from '../config'
-import { computed, ref } from 'vue';
+import { ref, Teleport } from 'vue';
 import { deleteField } from 'firebase/firestore';
 
-const user = computed(() => session.state?.users[config.name])
+const toggleViewOnly = () => {
+  updateUserState(config.name, {
+    viewOnly: !user.value?.viewOnly
+  })
+}
 const toggleOption = (option: string | null, forceReady?: boolean) => {
   const sameOption = user.value?.estimate === option
   const newReady = forceReady ?? (sameOption ? !user.value?.ready : true)
@@ -16,10 +20,16 @@ const toggleOption = (option: string | null, forceReady?: boolean) => {
 const quickSelect = ref('')
 let timeoutHandle: any
 document.addEventListener('keydown', (event) => {
+  if(user.value?.viewOnly) {
+    return
+  }
   if(['Backspace'].includes(event.key)) {
     clearTimeout(timeoutHandle)
     quickSelect.value = ''
     toggleOption(null, false)
+    return
+  }
+  if(event.key.length > 1) {
     return
   }
   quickSelect.value += event.key
@@ -34,8 +44,20 @@ document.addEventListener('keydown', (event) => {
 </script>
 
 <template>
+  <Teleport to="#globalcontrols">
+    <button 
+      @click="toggleViewOnly"
+      :class="{active: user?.viewOnly}"
+      title="View Mode"
+    >👁</button>
+    <div class="viewer" v-show="orderedViewingUsers.length > 0">
+      <span>Viewer:</span>
+      <span v-for="viewer in orderedViewingUsers">{{viewer}}</span>
+    </div>
+  </Teleport> 
   <div>{{quickSelect}}</div>
-  <button 
+  <button
+    v-show="!user?.viewOnly"
     v-for="option in session.state?.settings.options"
     :class="{active: option === user?.estimate}"
     @click="toggleOption(option)"
@@ -43,7 +65,11 @@ document.addEventListener('keydown', (event) => {
 </template>
 
 <style>
-  button.active {
-    font-weight: bold;
+  .viewer {
+    display: inline;
+    margin-left: 8px;
+  }
+  .viewer span {
+    margin-left: 4px;
   }
 </style>

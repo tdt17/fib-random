@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app"
 import { getFirestore, onSnapshot, doc, Unsubscribe, addDoc, collection, setDoc } from "firebase/firestore"
-import { computed, reactive, watch } from "vue"
+import { computed, reactive, watch, watchEffect } from "vue"
 import { config } from "./config"
 
 const app = initializeApp({
@@ -17,6 +17,7 @@ const db = getFirestore()
 export type User = {
   estimate?: string
   ready: boolean
+  viewOnly?: boolean
 }
 
 type State = {
@@ -50,10 +51,18 @@ export const session = reactive({
   state: undefined as undefined | State
 })
 
-export const orderedUsers = computed(() => Object.keys(session.state?.users ?? {}).sort())
-export const allReady = computed(() => 
-  Object.values(session.state?.users ?? {}).every(({ready}) => ready)
+export const activeUsers = computed(() => 
+  Object.fromEntries(Object.entries(session.state?.users || {}).filter(([,{ viewOnly }]) => !viewOnly))
 )
+export const viewingUsers = computed(() => 
+  Object.fromEntries(Object.entries(session.state?.users || {}).filter(([,{ viewOnly }]) => viewOnly))
+)
+export const orderedActiveUsers = computed(() => Object.keys(activeUsers.value).sort())
+export const orderedViewingUsers = computed(() => Object.keys(viewingUsers.value).sort())
+export const allReady = computed(() => 
+  Object.values(activeUsers).every(({ready}) => ready)
+)
+export const user = computed(() => session.state?.users[config.name])
 
 let unsubscribe: Unsubscribe
 watch(() => [session.id, config.name], ([id, name]) => {
