@@ -60,7 +60,7 @@ export const viewingUsers = computed(() =>
 export const orderedActiveUsers = computed(() => Object.keys(activeUsers.value).sort())
 export const orderedViewingUsers = computed(() => Object.keys(viewingUsers.value).sort())
 export const allReady = computed(() => 
-  Object.values(activeUsers).every(({ready}) => ready)
+  Object.values(activeUsers.value).every(({ready}) => ready)
 )
 export const user = computed(() => session.state?.users[config.name])
 
