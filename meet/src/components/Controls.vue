@@ -52,7 +52,10 @@ document.addEventListener('keydown', (event) => {
     >👁</button>
     <div class="viewer" v-show="orderedViewingUsers.length > 0">
       Viewer:
-      <span v-for="viewer in orderedViewingUsers">{{viewer}}</span>
+      <span 
+        v-for="viewer in orderedViewingUsers"
+        :class="{active: viewer === config.name}"
+      >{{viewer}}</span>
     </div>
   </Teleport> 
   <div>{{quickSelect}}</div>
@@ -74,5 +77,8 @@ document.addEventListener('keydown', (event) => {
     margin: 4px;
     background-color: #eee;
     border-radius: 5px;
+  }
+  .viewer span.active {
+    background-color: rgb(204, 222, 255);
   }
 </style>
