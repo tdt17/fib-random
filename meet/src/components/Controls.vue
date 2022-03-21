@@ -51,7 +51,7 @@ document.addEventListener('keydown', (event) => {
       title="View Mode"
     >👁</button>
     <div class="viewer" v-show="orderedViewingUsers.length > 0">
-      <span>Viewer:</span>
+      Viewer:
       <span v-for="viewer in orderedViewingUsers">{{viewer}}</span>
     </div>
   </Teleport> 
@@ -67,9 +67,12 @@ document.addEventListener('keydown', (event) => {
 <style>
   .viewer {
     display: inline;
-    margin-left: 8px;
+    margin: 8px;
   }
   .viewer span {
-    margin-left: 4px;
+    padding: 2px 4px;
+    margin: 4px;
+    background-color: #eee;
+    border-radius: 5px;
   }
 </style>
