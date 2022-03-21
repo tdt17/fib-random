@@ -85,9 +85,8 @@ export const updateUserState = async (name: string, user: Partial<User>) => {
     }
   }, { merge: true }) 
 }
-
-export const updateState = async (settings: Partial<State['settings']>) => {
-  await setDoc(doc(db, `sessions/${session.id}`), { settings }, { merge: true }) 
+export const updateState = async (state: RecursivePartial<State>) => {
+  await setDoc(doc(db, `sessions/${session.id}`), state, { merge: true }) 
 }
 
 watch(() => [session.state?.users, config.name], ([users, name]) => {
