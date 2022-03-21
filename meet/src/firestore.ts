@@ -20,7 +20,7 @@ export type User = {
   viewOnly?: boolean
 }
 
-type State = {
+export type State = {
   users: {
     [user: string]: User
   }
@@ -63,6 +63,7 @@ export const allReady = computed(() =>
   Object.values(activeUsers.value).every(({ready}) => ready)
 )
 export const user = computed(() => session.state?.users[config.name])
+export const isAdmin = computed(() => session.state?.settings.openSettings || session.state?.settings.admin === config.name)
 
 let unsubscribe: Unsubscribe
 watch(() => [session.id, config.name], ([id, name]) => {
