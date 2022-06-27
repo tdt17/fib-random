@@ -3,6 +3,7 @@ import { session, user, updateUserState, orderedViewingUsers } from '../firestor
 import { config } from '../config'
 import { ref, Teleport } from 'vue';
 import { deleteField } from 'firebase/firestore';
+import { darkMode } from '../darkmode';
 
 const toggleViewOnly = () => {
   updateUserState(config.name, {
@@ -41,10 +42,17 @@ document.addEventListener('keydown', (event) => {
     quickSelect.value = ''
   }, 500)
 })
+const toggleDarkmode = () => {
+  darkMode.value = !darkMode.value
+}
 </script>
 
 <template>
   <Teleport to="#globalcontrols">
+    <button 
+      @click="toggleDarkmode"
+      title="Darkmode"
+    >{{darkMode ? '☀️' : '🌙' }}</button>
     <button 
       @click="toggleViewOnly"
       :class="{active: user?.viewOnly}"
@@ -77,6 +85,7 @@ document.addEventListener('keydown', (event) => {
     margin: 4px;
     background-color: #eee;
     border-radius: 5px;
+    color: #2c3e50;
   }
   .viewer span.active {
     background-color: rgb(204, 222, 255);

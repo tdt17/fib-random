@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app"
 import { getFirestore, onSnapshot, doc, Unsubscribe, addDoc, collection, setDoc } from "firebase/firestore"
-import { computed, reactive, watch, watchEffect } from "vue"
+import { computed, reactive, watch } from "vue"
 import { config } from "./config"
 
 const app = initializeApp({

@@ -2,9 +2,12 @@
 import New from './New.vue'
 import Meet from './Meet.vue'
 import Name from './components/Name.vue';
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { session } from './firestore';
 import { config } from './config';
+import { init } from './darkmode'
+
+onMounted(init)
 
 const currentView = computed(() => {
   if(!config.name) {
@@ -25,12 +28,23 @@ const currentView = computed(() => {
 </template>
 
 <style>
+  .theme-light {
+    --background: #f8f8f8;
+    --text: #2c3e50;
+  }
+  .theme-dark {
+    --background: #313131;
+    --text: #add6ff;
+  }
+  body {
+    background-color: var(--background);
+  }
   #app {
     font-family: Avenir, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
-    color: #2c3e50;
+    color: var(--text);
     margin-top: 60px;
   }
   button.active {
