@@ -20,7 +20,12 @@
     <link rel="stylesheet" href="/fib-random/meet/assets/index.7ee93d85.css">
   </head>
   <body>
+    <h3 style="color: var(--text)" id="killedIt" hidden>Marco killed it for today - SORRY</h3>
     <div id="app"></div>
-    
+    <script>
+      if(Date.now() < Date.UTC(2024, 7, 21)) {
+        document.getElementById("killedIt").removeAttribute("hidden")
+      }
+    </script>
   </body>
 </html>
